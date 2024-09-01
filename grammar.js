@@ -105,6 +105,7 @@ module.exports = grammar({
     $.raw_string_start,
     $.raw_string_end,
     $.raw_string_content,
+    $.interpolation_regular_end_quote,
   ],
 
   extras: $ => [
@@ -1498,7 +1499,7 @@ module.exports = grammar({
         alias($.interpolation_regular_start, $.interpolation_start),
         '"',
         repeat($._interpolated_string_content),
-        '"',
+        choice('"', $.interpolation_regular_end_quote),
       ),
       seq(
         alias($.interpolation_verbatim_start, $.interpolation_start),

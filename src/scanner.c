@@ -17,6 +17,7 @@ enum TokenType {
     RAW_STRING_START,
     RAW_STRING_END,
     RAW_STRING_CONTENT,
+    INTERPOLATION_REGULAR_END_QUOTE
 };
 
 typedef enum {
@@ -394,10 +395,13 @@ bool tree_sitter_c_sharp_external_scanner_scan(void *payload, TSLexer *lexer, co
 
             // finally regular
             else if (is_regular(current_interpolation)) {
+                if ((! did_advance) && lexer->lookahead == '"') {
+                    array_pop(&scanner->interpolation_stack);
+                    advance(lexer);
+                    lexer->result_symbol = INTERPOLATION_REGULAR_END_QUOTE;
+                    return true;
+                }
                 if (lexer->lookahead == '\\' || lexer->lookahead == '\n' || lexer->lookahead == '"') {
-                    if (did_advance && lexer->lookahead == '"') {
-                        array_pop(&scanner->interpolation_stack);
-                    }
                     lexer->mark_end(lexer);
                     return did_advance;
                 }
